@@ -1,12 +1,13 @@
 package de.MCmoderSD.cloudflare.objects;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.util.concurrent.TimeUnit;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 
+@SuppressWarnings("unused")
 public class ModifiedRecord extends DnsRecord {
 
     // Modified attributes

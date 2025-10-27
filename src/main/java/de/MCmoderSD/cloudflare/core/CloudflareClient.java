@@ -1,10 +1,10 @@
 package de.MCmoderSD.cloudflare.core;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import de.MCmoderSD.cloudflare.objects.DnsRecord;
 import de.MCmoderSD.cloudflare.objects.ModifiedRecord;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.io.IOException;
 import java.net.URI;
@@ -15,6 +15,7 @@ import java.net.http.HttpResponse;
 import java.util.HashMap;
 import java.util.HashSet;
 
+@SuppressWarnings({"unused", "UnusedReturnValue"})
 public class CloudflareClient {
 
     // Endpoint URLs
@@ -30,6 +31,10 @@ public class CloudflareClient {
 
     // Constructor
     public CloudflareClient(String zoneId, String apiToken) {
+
+        // Check credentials
+        if (zoneId == null || zoneId.isBlank() || zoneId.contains(" ")) throw new IllegalArgumentException("Zone ID is invalid");
+        if (apiToken == null || apiToken.isBlank() || apiToken.contains(" ")) throw new IllegalArgumentException("API Token is invalid");
 
         // Set Zone ID
         this.zoneId = zoneId;

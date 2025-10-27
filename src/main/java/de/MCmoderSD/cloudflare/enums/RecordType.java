@@ -1,6 +1,5 @@
 package de.MCmoderSD.cloudflare.enums;
 
-@SuppressWarnings("SpellCheckingInspection")
 public enum RecordType {
 
     // Values

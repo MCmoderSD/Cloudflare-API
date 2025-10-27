@@ -1,4 +1,11 @@
 import de.MCmoderSD.cloudflare.core.CloudflareClient;
+import de.MCmoderSD.cloudflare.objects.DnsRecord;
+
+import tools.jackson.databind.node.ObjectNode;
+
+import java.util.HashSet;
+
+import static de.MCmoderSD.cloudflare.enums.RecordType.TXT;
 
 @SuppressWarnings("ALL")
 public class Main {
@@ -12,14 +19,11 @@ public class Main {
         // Initialize Cloudflare Client
         CloudflareClient client = new CloudflareClient(zoneId, apiToken);
 
-        // List DNS Records
-        listDnsRecords(client);
-    }
+        // Get DNS Records
+        HashSet<DnsRecord> records = client.getRecords();
 
-    private static void listDnsRecords(CloudflareClient client) {
-        var records = client.getRecords();
+        // List DNS Records
         for (var record : records) {
-            System.out.println("--------------------------------");
             System.out.println("ID: " + record.getId());
             System.out.println("Name: " + record.getName());
             System.out.println("Type: " + record.getType());
@@ -31,6 +35,50 @@ public class Main {
             System.out.println("Created On: " + record.getCreated());
             System.out.println("Modified On: " + record.getModified());
             System.out.println("--------------------------------");
+        }
+
+        // Find base domain
+        String baseDomain = records.stream()
+                .map(DnsRecord::getName)
+                .min((a, b) -> Integer.compare(a.length(), b.length()))
+                .orElseThrow();
+
+        boolean recordExists = records.stream().anyMatch(record -> record.getType().equals(TXT) && record.getName().equals("hello-world." + baseDomain));
+
+        if (recordExists) {
+
+            System.out.println("\nRecord already exists.");
+            System.out.println("Deleting record...");
+
+            // Find and delete the record
+            DnsRecord recordToDelete = records.stream()
+                    .filter(record -> record.getType().equals(TXT) && record.getName().equals("hello-world." + baseDomain))
+                    .findFirst()
+                    .orElseThrow();
+
+            // Delete the record
+            boolean success = client.deleteRecord(recordToDelete);
+
+            // Output result
+            if (success) System.out.println("Deleted record 'hello-world." + baseDomain + "' of type TXT.");
+            else  System.out.println("Failed to delete record 'hello-world." + baseDomain + "'.");
+
+        } else {
+
+            System.out.println("\nRecord does not exist.");
+            System.out.println("Creating record...");
+
+            // Create a new TXT record
+            ObjectNode record = DnsRecord.builder(TXT)
+                    .name("hello-world." + baseDomain)
+                    .content("This is a test record.")
+                    .buildJson();
+
+            // Create the record
+            client.createRecord(record);
+
+            // Output result
+            System.out.println("Created record 'hello-world." + baseDomain + "' of type TXT.");
         }
     }
 }

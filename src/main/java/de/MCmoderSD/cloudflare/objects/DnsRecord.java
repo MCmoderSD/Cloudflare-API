@@ -1,9 +1,9 @@
 package de.MCmoderSD.cloudflare.objects;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import de.MCmoderSD.cloudflare.enums.RecordType;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.sql.Timestamp;
 import java.util.Objects;
@@ -12,7 +12,7 @@ import java.util.concurrent.TimeUnit;
 import static de.MCmoderSD.cloudflare.enums.RecordType.*;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
-@SuppressWarnings("spellcheckinginspection")
+@SuppressWarnings("unused")
 public class DnsRecord {
 
     // Attributes
@@ -31,32 +31,36 @@ public class DnsRecord {
     public DnsRecord(JsonNode dnsRecord) {
 
         // Check dnsRecord
-        if (dnsRecord == null) throw new IllegalArgumentException("Record cannot be null");
-        if (dnsRecord.isEmpty()) throw new IllegalArgumentException("Record cannot be empty");
-        if (!dnsRecord.has("id")) throw new IllegalArgumentException("Record must have an id");
-        if (!dnsRecord.has("name")) throw new IllegalArgumentException("Record must have a name");
-        if (!dnsRecord.has("type")) throw new IllegalArgumentException("Record must have a type");
-        if (!dnsRecord.has("content")) throw new IllegalArgumentException("Record must have a content");
-        if (!dnsRecord.has("proxiable")) throw new IllegalArgumentException("Record must have a proxiable");
-        if (!dnsRecord.has("proxied")) throw new IllegalArgumentException("Record must have a proxied");
-        if (!dnsRecord.has("ttl")) throw new IllegalArgumentException("Record must have a ttl");
-        if (!dnsRecord.has("comment")) throw new IllegalArgumentException("Record must have a comment");
-        if (!dnsRecord.has("created_on")) throw new IllegalArgumentException("Record must have a created_on");
-        if (!dnsRecord.has("modified_on")) throw new IllegalArgumentException("Record must have a modified_on");
+        if (dnsRecord == null || dnsRecord.isNull() || dnsRecord.isEmpty()) throw new IllegalArgumentException("DNS record JSON cannot be null or empty");
+        if (!dnsRecord.has("id") || dnsRecord.get("id").isNull() || !dnsRecord.get("id").isString()) throw new IllegalArgumentException("DNS record ID is missing or invalid");
+        if (!dnsRecord.has("name") || dnsRecord.get("name").isNull() || !dnsRecord.get("name").isString()) throw new IllegalArgumentException("DNS record name is missing or invalid");
+        if (!dnsRecord.has("type") || dnsRecord.get("type").isNull() || !dnsRecord.get("type").isString()) throw new IllegalArgumentException("DNS record type is missing or invalid");
+        if (!dnsRecord.has("content") || dnsRecord.get("content").isNull() || !dnsRecord.get("content").isString()) throw new IllegalArgumentException("DNS record content is missing or invalid");
+        if (!dnsRecord.has("proxiable") || dnsRecord.get("proxiable").isNull() || !dnsRecord.get("proxiable").isBoolean()) throw new IllegalArgumentException("DNS record proxiable flag is missing or invalid");
+        if (!dnsRecord.has("proxied") || dnsRecord.get("proxied").isNull() || !dnsRecord.get("proxied").isBoolean()) throw new IllegalArgumentException("DNS record proxied flag is missing or invalid");
+        if (!dnsRecord.has("ttl") || dnsRecord.get("ttl").isNull() || !dnsRecord.get("ttl").isInt()) throw new IllegalArgumentException("DNS record TTL is missing or invalid");
+        if (!dnsRecord.has("created_on") || dnsRecord.get("created_on").isNull() || !dnsRecord.get("created_on").isString()) throw new IllegalArgumentException("DNS record creation timestamp is missing or invalid");
+        if (!dnsRecord.has("modified_on") || dnsRecord.get("modified_on").isNull() || !dnsRecord.get("modified_on").isString()) throw new IllegalArgumentException("DNS record modification timestamp is missing or invalid");
 
         // Set attributes
-        id = dnsRecord.get("id").asText();
-        name = dnsRecord.get("name").asText();
-        type = RecordType.fromString(dnsRecord.get("type").asText());
-        content = dnsRecord.get("content").asText();
+        id = dnsRecord.get("id").asString();
+        name = dnsRecord.get("name").asString();
+        type = RecordType.fromString(dnsRecord.get("type").asString());
+        content = dnsRecord.get("content").asString();
         proxiable = dnsRecord.get("proxiable").asBoolean();
         proxied = dnsRecord.get("proxied").asBoolean();
         ttl = dnsRecord.get("ttl").asInt();
-        comment = dnsRecord.get("comment") == null ? null : dnsRecord.get("comment").asText().equals("null") ? null : dnsRecord.get("comment").asText();
-        created = Timestamp.valueOf(dnsRecord.get("created_on").asText().replace("T", " ").replace("Z", ""));
-        modified = Timestamp.valueOf(dnsRecord.get("modified_on").asText().replace("T", " ").replace("Z", ""));
+
+        // Optional comment
+        if (dnsRecord.has("comment") && !dnsRecord.get("comment").isNull() && dnsRecord.get("comment").isString()) comment = dnsRecord.get("comment").asString();
+        else comment = null;
+
+        // Parse timestamps
+        created = Timestamp.valueOf(dnsRecord.get("created_on").asString().replaceAll("T", " ").replaceAll("Z", ""));
+        modified = Timestamp.valueOf(dnsRecord.get("modified_on").asString().replaceAll("T", " ").replaceAll("Z", ""));
     }
 
+    // Copy constructor
     public DnsRecord(DnsRecord dnsRecord) {
 
         // Check dnsRecord
@@ -78,15 +82,15 @@ public class DnsRecord {
     public boolean equals(DnsRecord dnsRecord) {
         if (dnsRecord == null) throw new IllegalArgumentException("DnsRecord cannot be null");
         boolean equals = id.equals(dnsRecord.id);
-        equals = equals && name.equals(dnsRecord.name);
-        equals = equals && type == dnsRecord.type;
-        equals = equals && content.equals(dnsRecord.content);
-        equals = equals && proxiable == dnsRecord.proxiable;
-        equals = equals && proxied == dnsRecord.proxied;
-        equals = equals && ttl == dnsRecord.ttl;
-        equals = equals && Objects.equals(comment, dnsRecord.comment);
-        equals = equals && created.equals(dnsRecord.created);
-        equals = equals && modified.equals(dnsRecord.modified);
+        equals &= name.equals(dnsRecord.name);
+        equals &= type == dnsRecord.type;
+        equals &= content.equals(dnsRecord.content);
+        equals &= proxiable == dnsRecord.proxiable;
+        equals &= proxied == dnsRecord.proxied;
+        equals &= ttl == dnsRecord.ttl;
+        equals &= Objects.equals(comment, dnsRecord.comment);
+        equals &= created.equals(dnsRecord.created);
+        equals &= modified.equals(dnsRecord.modified);
         return equals;
     }
 
@@ -139,7 +143,6 @@ public class DnsRecord {
         return new Builder(type);
     }
 
-    @SuppressWarnings("SpellCheckingInspection")
     public static class Builder {
 
         // Attributes
