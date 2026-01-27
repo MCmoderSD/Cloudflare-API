@@ -27,7 +27,7 @@ Add the dependency to your `pom.xml` file:
 <dependency>
     <groupId>de.MCmoderSD</groupId>
     <artifactId>Cloudflare-API</artifactId>
-    <version>1.0.1</version>
+    <version>1.1.0</version>
 </dependency>
 ```
 
@@ -35,86 +35,81 @@ Add the dependency to your `pom.xml` file:
 ```java
 import de.MCmoderSD.cloudflare.core.CloudflareClient;
 import de.MCmoderSD.cloudflare.objects.DnsRecord;
-
 import tools.jackson.databind.node.ObjectNode;
 
 import java.util.HashSet;
 
 import static de.MCmoderSD.cloudflare.enums.RecordType.TXT;
 
-@SuppressWarnings("ALL")
-public class Main {
+void main() {
 
-    public static void main(String[] args) {
+    // Cloudflare Credentials
+    String zoneId = "YOUR_ZONE_ID";
+    String apiToken = "YOUR_API";
 
-        // Cloudflare Credentials
-        String zoneId = "YOUR_ZONE_ID";
-        String apiToken = "YOUR_API";
+    // Initialize Cloudflare Client
+    CloudflareClient client = new CloudflareClient(zoneId, apiToken);
 
-        // Initialize Cloudflare Client
-        CloudflareClient client = new CloudflareClient(zoneId, apiToken);
+    // Get DNS Records
+    HashSet<DnsRecord> records = client.getRecords();
 
-        // Get DNS Records
-        HashSet<DnsRecord> records = client.getRecords();
+    // List DNS Records
+    for (var record : records) {
+        System.out.println("ID: " + record.getId());
+        System.out.println("Name: " + record.getName());
+        System.out.println("Type: " + record.getType());
+        System.out.println("Content: " + record.getContent());
+        System.out.println("Proxiable: " + record.isProxiable());
+        System.out.println("Proxied: " + record.isProxied());
+        System.out.println("TTL: " + record.getTtl() + " seconds");
+        System.out.println("Comment: " + record.getComment());
+        System.out.println("Created On: " + record.getCreated());
+        System.out.println("Modified On: " + record.getModified());
+        System.out.println("--------------------------------");
+    }
 
-        // List DNS Records
-        for (var record : records) {
-            System.out.println("ID: " + record.getId());
-            System.out.println("Name: " + record.getName());
-            System.out.println("Type: " + record.getType());
-            System.out.println("Content: " + record.getContent());
-            System.out.println("Proxiable: " + record.isProxiable());
-            System.out.println("Proxied: " + record.isProxied());
-            System.out.println("TTL: " + record.getTtl() + " seconds");
-            System.out.println("Comment: " + record.getComment());
-            System.out.println("Created On: " + record.getCreated());
-            System.out.println("Modified On: " + record.getModified());
-            System.out.println("--------------------------------");
-        }
+    // Find base domain
+    String baseDomain = records.stream()
+            .map(DnsRecord::getName)
+            .min(Comparator.comparingInt(String::length))
+            .orElseThrow();
 
-        // Find base domain
-        String baseDomain = records.stream()
-                .map(DnsRecord::getName)
-                .min((a, b) -> Integer.compare(a.length(), b.length()))
+    boolean recordExists = records.stream().anyMatch(record -> record.getType().equals(TXT) && record.getName().equals("hello-world." + baseDomain));
+
+    if (recordExists) {
+
+        System.out.println("\nRecord already exists.");
+        System.out.println("Deleting record...");
+
+        // Find and delete the record
+        DnsRecord recordToDelete = records.stream()
+                .filter(record -> record.getType().equals(TXT) && record.getName().equals("hello-world." + baseDomain))
+                .findFirst()
                 .orElseThrow();
 
-        boolean recordExists = records.stream().anyMatch(record -> record.getType().equals(TXT) && record.getName().equals("hello-world." + baseDomain));
+        // Delete the record
+        boolean success = client.deleteRecord(recordToDelete);
 
-        if (recordExists) {
+        // Output result
+        if (success) System.out.println("Deleted record 'hello-world." + baseDomain + "' of type TXT.");
+        else System.out.println("Failed to delete record 'hello-world." + baseDomain + "'.");
 
-            System.out.println("\nRecord already exists.");
-            System.out.println("Deleting record...");
+    } else {
 
-            // Find and delete the record
-            DnsRecord recordToDelete = records.stream()
-                    .filter(record -> record.getType().equals(TXT) && record.getName().equals("hello-world." + baseDomain))
-                    .findFirst()
-                    .orElseThrow();
+        System.out.println("\nRecord does not exist.");
+        System.out.println("Creating record...");
 
-            // Delete the record
-            boolean success = client.deleteRecord(recordToDelete);
+        // Create a new TXT record
+        ObjectNode record = DnsRecord.builder(TXT)
+                .name("hello-world." + baseDomain)
+                .content("This is a test record.")
+                .buildJson();
 
-            // Output result
-            if (success) System.out.println("Deleted record 'hello-world." + baseDomain + "' of type TXT.");
-            else  System.out.println("Failed to delete record 'hello-world." + baseDomain + "'.");
+        // Create the record
+        client.createRecord(record);
 
-        } else {
-
-            System.out.println("\nRecord does not exist.");
-            System.out.println("Creating record...");
-
-            // Create a new TXT record
-            ObjectNode record = DnsRecord.builder(TXT)
-                    .name("hello-world." + baseDomain)
-                    .content("This is a test record.")
-                    .buildJson();
-
-            // Create the record
-            client.createRecord(record);
-
-            // Output result
-            System.out.println("Created record 'hello-world." + baseDomain + "' of type TXT.");
-        }
+        // Output result
+        System.out.println("Created record 'hello-world." + baseDomain + "' of type TXT.");
     }
 }
 ```
