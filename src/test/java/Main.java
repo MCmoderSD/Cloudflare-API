@@ -20,17 +20,17 @@ void main() {
 
     // List DNS Records
     for (var record : records) {
-        System.out.println("ID: " + record.getId());
-        System.out.println("Name: " + record.getName());
-        System.out.println("Type: " + record.getType());
-        System.out.println("Content: " + record.getContent());
-        System.out.println("Proxiable: " + record.isProxiable());
-        System.out.println("Proxied: " + record.isProxied());
-        System.out.println("TTL: " + record.getTtl() + " seconds");
-        System.out.println("Comment: " + record.getComment());
-        System.out.println("Created On: " + record.getCreated());
-        System.out.println("Modified On: " + record.getModified());
-        System.out.println("--------------------------------");
+        IO.println("ID: " + record.getId());
+        IO.println("Name: " + record.getName());
+        IO.println("Type: " + record.getType());
+        IO.println("Content: " + record.getContent());
+        IO.println("Proxiable: " + record.isProxiable());
+        IO.println("Proxied: " + record.isProxied());
+        IO.println("TTL: " + record.getTtl() + " seconds");
+        IO.println("Comment: " + record.getComment());
+        IO.println("Created On: " + record.getCreated());
+        IO.println("Modified On: " + record.getModified());
+        IO.println("--------------------------------");
     }
 
     // Find base domain
@@ -43,8 +43,8 @@ void main() {
 
     if (recordExists) {
 
-        System.out.println("\nRecord already exists.");
-        System.out.println("Deleting record...");
+        IO.println("\nRecord already exists.");
+        IO.println("Deleting record...");
 
         // Find and delete the record
         DnsRecord recordToDelete = records.stream()
@@ -56,13 +56,13 @@ void main() {
         boolean success = client.deleteRecord(recordToDelete);
 
         // Output result
-        if (success) System.out.println("Deleted record 'hello-world." + baseDomain + "' of type TXT.");
-        else System.out.println("Failed to delete record 'hello-world." + baseDomain + "'.");
+        if (success) IO.println("Deleted record 'hello-world." + baseDomain + "' of type TXT.");
+        else IO.println("Failed to delete record 'hello-world." + baseDomain + "'.");
 
     } else {
 
-        System.out.println("\nRecord does not exist.");
-        System.out.println("Creating record...");
+        IO.println("\nRecord does not exist.");
+        IO.println("Creating record...");
 
         // Create a new TXT record
         ObjectNode record = DnsRecord.builder(TXT)
@@ -74,6 +74,6 @@ void main() {
         client.createRecord(record);
 
         // Output result
-        System.out.println("Created record 'hello-world." + baseDomain + "' of type TXT.");
+        IO.println("Created record 'hello-world." + baseDomain + "' of type TXT.");
     }
 }
