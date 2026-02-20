@@ -6,7 +6,7 @@
 
     <groupId>de.MCmoderSD</groupId>
     <artifactId>Cloudflare-API</artifactId>
-    <version>1.1.0</version>
+    <version>1.1.1</version>
 
     <name>Cloudflare-API</name>
     <description>A simple Java library to interact with the Cloudflare API, focusing on DNS record management</description>

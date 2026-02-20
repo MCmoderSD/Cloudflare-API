@@ -1,6 +1,8 @@
 package de.MCmoderSD.cloudflare.enums;
 
-public enum RecordType {
+import java.io.Serializable;
+
+public enum RecordType implements Serializable {
 
     // Values
     A,
@@ -24,18 +26,17 @@ public enum RecordType {
     TXT,
     URI;
 
+    // Methods
     public boolean isProxiable() {
         return isProxiable(this);
     }
 
-    // Methods
     public static boolean isProxiable(RecordType type) {
         return type == A || type == AAAA || type == CNAME;
     }
 
     public static RecordType fromString(String type) {
-        if (type == null) throw new IllegalArgumentException("Type cannot be null");
-        if (type.isBlank()) throw new IllegalArgumentException("Type cannot be blank");
+        if (type == null || type.isBlank()) throw new IllegalArgumentException("Type cannot be null or blank");
         for (var recordType : RecordType.values()) if (recordType.name().equalsIgnoreCase(type)) return recordType;
         throw new IllegalArgumentException("Unknown record type: " + type);
     }

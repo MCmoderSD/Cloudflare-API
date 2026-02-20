@@ -36,8 +36,7 @@ public class ModifiedRecord extends DnsRecord {
 
     // Setters for modified attributes
     public void modifyContent(String content) {
-        if (content == null) throw new IllegalArgumentException("Content cannot be null");
-        if (content.isBlank()) throw new IllegalArgumentException("Content cannot be blank");
+        if (content == null || content.isBlank()) throw new IllegalArgumentException("Content cannot be null or blank");
         modifiedContent = content;
     }
 

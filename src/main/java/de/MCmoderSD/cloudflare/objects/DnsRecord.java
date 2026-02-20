@@ -5,6 +5,7 @@ import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.node.ObjectNode;
 
+import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
@@ -13,7 +14,7 @@ import static de.MCmoderSD.cloudflare.enums.RecordType.*;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 @SuppressWarnings("unused")
-public class DnsRecord {
+public class DnsRecord implements Serializable {
 
     // Attributes
     protected final String id;
@@ -52,8 +53,8 @@ public class DnsRecord {
         ttl = dnsRecord.get("ttl").asInt();
 
         // Optional comment
-        if (dnsRecord.has("comment") && !dnsRecord.get("comment").isNull() && dnsRecord.get("comment").isString()) comment = dnsRecord.get("comment").asString();
-        else comment = null;
+        if (!dnsRecord.has("comment") || dnsRecord.get("comment").isNull() || !dnsRecord.get("comment").isString()) comment = null;
+        else comment = dnsRecord.get("comment").asString();
 
         // Parse timestamps
         created = Timestamp.valueOf(dnsRecord.get("created_on").asString().replaceAll("T", " ").replaceAll("Z", ""));
@@ -79,21 +80,7 @@ public class DnsRecord {
         modified = dnsRecord.modified;
     }
 
-    public boolean equals(DnsRecord dnsRecord) {
-        if (dnsRecord == null) throw new IllegalArgumentException("DnsRecord cannot be null");
-        boolean equals = id.equals(dnsRecord.id);
-        equals &= name.equals(dnsRecord.name);
-        equals &= type == dnsRecord.type;
-        equals &= content.equals(dnsRecord.content);
-        equals &= proxiable == dnsRecord.proxiable;
-        equals &= proxied == dnsRecord.proxied;
-        equals &= ttl == dnsRecord.ttl;
-        equals &= Objects.equals(comment, dnsRecord.comment);
-        equals &= created.equals(dnsRecord.created);
-        equals &= modified.equals(dnsRecord.modified);
-        return equals;
-    }
-
+    // Getters
     public String getId() {
         return id;
     }
@@ -139,15 +126,18 @@ public class DnsRecord {
         return modified;
     }
 
+    // Static builder method
     public static Builder builder(RecordType type) {
         return new Builder(type);
     }
 
+    // Builder class
     public static class Builder {
 
-        // Attributes
+        // Required attributes
         private final RecordType type;
 
+        // Builder attributes
         private String name;
         private String content;
         private boolean proxied;
@@ -155,7 +145,7 @@ public class DnsRecord {
         private String comment;
 
         // Constructor
-        public Builder(RecordType type) {
+        protected Builder(RecordType type) {
 
             // Null check
             if (type == null) throw new IllegalArgumentException("Type cannot be null");
@@ -180,6 +170,7 @@ public class DnsRecord {
             this.type = type;
         }
 
+        // Setters
         public Builder name(String name) {
             if (name == null) throw new IllegalArgumentException("Name cannot be null");
             if (name.isBlank()) throw new IllegalArgumentException("Name cannot be blank");
@@ -219,6 +210,7 @@ public class DnsRecord {
             return this;
         }
 
+        // Build JSON object
         public ObjectNode buildJson() {
 
             // Check required attributes
@@ -238,5 +230,15 @@ public class DnsRecord {
             // Return JSON object
             return node;
         }
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, name, type, content, proxiable, proxied, ttl, comment, created, modified);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return obj.getClass() == getClass() && hashCode() == obj.hashCode();
     }
 }

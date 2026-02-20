@@ -49,6 +49,7 @@ public class CloudflareClient {
                 .header("Content-Type", "application/json");
     }
 
+    // Send Request
     private JsonNode sendRequest(HttpRequest request) throws IOException, InterruptedException {
 
         // Check request
