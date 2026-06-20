@@ -56,7 +56,7 @@ public class CloudflareClient {
         if (request == null) throw new IllegalArgumentException("Request cannot be null");
 
         // Send request
-        HttpResponse<String> httpResponse = client.send(request, HttpResponse.BodyHandlers.ofString());
+        var httpResponse = client.send(request, HttpResponse.BodyHandlers.ofString());
 
         // Check response
         if (httpResponse == null) throw new RuntimeException("HTTP response is null");
@@ -66,7 +66,7 @@ public class CloudflareClient {
         if (body.isBlank()) throw new RuntimeException("Response body is empty");
 
         // Parse response
-        JsonNode response = mapper.readTree(body);
+        var response = mapper.readTree(body);
         if (response == null) throw new RuntimeException("Response body is null");
         if (response.isEmpty()) throw new RuntimeException("Response body is empty");
         if (!response.has("result") || response.get("result").isEmpty()) throw new RuntimeException("Response body does not contain result");
@@ -78,7 +78,7 @@ public class CloudflareClient {
 
     // Get Record Map
     public HashMap<String, DnsRecord> getRecordMap() {
-        HashMap<String, DnsRecord> recordMap = new HashMap<>();
+        var recordMap = new HashMap<String, DnsRecord>();
         for (var record : getRecords()) recordMap.put(record.getId(), record);
         return recordMap;
     }
@@ -88,19 +88,19 @@ public class CloudflareClient {
         try {
 
             // Create request
-            HttpRequest request = requestBuilder
+            var request = requestBuilder
                     .uri(new URI(BASE_URL + zoneId + "/dns_records"))
                     .GET()
                     .build();
 
             // Send request
-            JsonNode response = sendRequest(request);
+            var response = sendRequest(request);
 
             // Check Result
             if (!response.get("result").isArray()) throw new RuntimeException("Response body does not contain result array");
 
             // Convert to set of Records
-            HashSet<DnsRecord> dnsRecords = new HashSet<>();
+            var dnsRecords = new HashSet<DnsRecord>();
             var result = response.get("result");
             for (var record : result) dnsRecords.add(new DnsRecord(record));
             return dnsRecords;
@@ -118,13 +118,13 @@ public class CloudflareClient {
             if (modifiedRecord == null) throw new IllegalArgumentException("Modified record cannot be null");
 
             // Create request
-            HttpRequest request = requestBuilder
+            var request = requestBuilder
                     .uri(new URI(BASE_URL + zoneId + "/dns_records/" + modifiedRecord.getId()))
                     .PUT(HttpRequest.BodyPublishers.ofString(modifiedRecord.getModifiedContent().toString()))
                     .build();
 
             // Send request
-            DnsRecord response = new DnsRecord(sendRequest(request).get("result"));
+            var response = new DnsRecord(sendRequest(request).get("result"));
 
             // Check if update was successful
             return response.equals(getRecordMap().get(modifiedRecord.getId()));
@@ -142,7 +142,7 @@ public class CloudflareClient {
             if (dnsRecord == null) throw new IllegalArgumentException("DNS record cannot be null");
 
             // Create request
-            HttpRequest request = requestBuilder
+            var request = requestBuilder
                     .uri(new URI(BASE_URL + zoneId + "/dns_records/" + dnsRecord.getId()))
                     .DELETE()
                     .build();
@@ -166,16 +166,16 @@ public class CloudflareClient {
             if (record == null) throw new IllegalArgumentException("Record cannot be null");
 
             // Create request
-            HttpRequest request = requestBuilder
+            var request = requestBuilder
                     .uri(new URI(BASE_URL + zoneId + "/dns_records"))
                     .POST(HttpRequest.BodyPublishers.ofString(record.toString()))
                     .build();
 
             // Send request
-            JsonNode response = sendRequest(request);
+            var response = sendRequest(request);
 
             // Check if creation was successful
-            DnsRecord createdRecord = new DnsRecord(response.get("result"));
+            var createdRecord = new DnsRecord(response.get("result"));
             var recordMap = getRecordMap();
             if (!recordMap.containsKey(createdRecord.getId())) throw new RuntimeException("Record creation failed");
             var fetchedRecord = recordMap.get(createdRecord.getId());

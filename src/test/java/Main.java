@@ -1,22 +1,19 @@
 import de.MCmoderSD.cloudflare.core.CloudflareClient;
 import de.MCmoderSD.cloudflare.objects.DnsRecord;
-import tools.jackson.databind.node.ObjectNode;
-
-import java.util.HashSet;
 
 import static de.MCmoderSD.cloudflare.enums.RecordType.TXT;
 
 void main() {
 
     // Cloudflare Credentials
-    String zoneId = "YOUR_ZONE_ID";
-    String apiToken = "YOUR_API";
+    var zoneId = "YOUR_ZONE_ID";
+    var apiToken = "YOUR_API";
 
     // Initialize Cloudflare Client
-    CloudflareClient client = new CloudflareClient(zoneId, apiToken);
+    var client = new CloudflareClient(zoneId, apiToken);
 
     // Get DNS Records
-    HashSet<DnsRecord> records = client.getRecords();
+    var records = client.getRecords();
 
     // List DNS Records
     for (var record : records) {
@@ -34,12 +31,12 @@ void main() {
     }
 
     // Find base domain
-    String baseDomain = records.stream()
+    var baseDomain = records.stream()
             .map(DnsRecord::getName)
             .min(Comparator.comparingInt(String::length))
             .orElseThrow();
 
-    boolean recordExists = records.stream().anyMatch(record -> record.getType().equals(TXT) && record.getName().equals("hello-world." + baseDomain));
+    var recordExists = records.stream().anyMatch(record -> record.getType().equals(TXT) && record.getName().equals("hello-world." + baseDomain));
 
     if (recordExists) {
 
@@ -47,13 +44,13 @@ void main() {
         IO.println("Deleting record...");
 
         // Find and delete the record
-        DnsRecord recordToDelete = records.stream()
+        var recordToDelete = records.stream()
                 .filter(record -> record.getType().equals(TXT) && record.getName().equals("hello-world." + baseDomain))
                 .findFirst()
                 .orElseThrow();
 
         // Delete the record
-        boolean success = client.deleteRecord(recordToDelete);
+        var success = client.deleteRecord(recordToDelete);
 
         // Output result
         if (success) IO.println("Deleted record 'hello-world." + baseDomain + "' of type TXT.");
@@ -65,7 +62,7 @@ void main() {
         IO.println("Creating record...");
 
         // Create a new TXT record
-        ObjectNode record = DnsRecord.builder(TXT)
+        var record = DnsRecord.builder(TXT)
                 .name("hello-world." + baseDomain)
                 .content("This is a test record.")
                 .buildJson();

@@ -57,8 +57,8 @@ public class DnsRecord implements Serializable {
         else comment = dnsRecord.get("comment").asString();
 
         // Parse timestamps
-        created = Timestamp.valueOf(dnsRecord.get("created_on").asString().replaceAll("T", " ").replaceAll("Z", ""));
-        modified = Timestamp.valueOf(dnsRecord.get("modified_on").asString().replaceAll("T", " ").replaceAll("Z", ""));
+        created = Timestamp.valueOf(dnsRecord.get("created_on").asString().replace("T", " ").replace("Z", ""));
+        modified = Timestamp.valueOf(dnsRecord.get("modified_on").asString().replace("T", " ").replace("Z", ""));
     }
 
     // Copy constructor
@@ -219,7 +219,7 @@ public class DnsRecord implements Serializable {
             if (ttl == 0) ttl = 300; // Default TTL 300 seconds
 
             // Create JSON object
-            ObjectNode node = new ObjectMapper().createObjectNode()
+            var node = new ObjectMapper().createObjectNode()
                     .put("type", type.toString())
                     .put("name", name)
                     .put("content", content.contains(" ") ? "\"" + content + "\"" : content)

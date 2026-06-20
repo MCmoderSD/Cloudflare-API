@@ -23,7 +23,7 @@ public class ModifiedRecord extends DnsRecord {
 
     // Create JSON object for modified content
     public ObjectNode getModifiedContent() {
-        ObjectNode node = new ObjectMapper().createObjectNode()
+        var node = new ObjectMapper().createObjectNode()
                 .put("id", getId())
                 .put("name", getName())
                 .put("type", getType().toString())
