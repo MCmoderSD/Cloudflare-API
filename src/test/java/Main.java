@@ -2,6 +2,7 @@ import de.MCmoderSD.cloudflare.core.CloudflareClient;
 import de.MCmoderSD.cloudflare.objects.DnsRecord;
 
 import static de.MCmoderSD.cloudflare.enums.RecordType.TXT;
+import static java.lang.IO.println;
 
 void main() {
 
@@ -17,17 +18,17 @@ void main() {
 
     // List DNS Records
     for (var record : records) {
-        IO.println("ID: " + record.getId());
-        IO.println("Name: " + record.getName());
-        IO.println("Type: " + record.getType());
-        IO.println("Content: " + record.getContent());
-        IO.println("Proxiable: " + record.isProxiable());
-        IO.println("Proxied: " + record.isProxied());
-        IO.println("TTL: " + record.getTtl() + " seconds");
-        IO.println("Comment: " + record.getComment());
-        IO.println("Created On: " + record.getCreated());
-        IO.println("Modified On: " + record.getModified());
-        IO.println("--------------------------------");
+        println("ID: " + record.getId());
+        println("Name: " + record.getName());
+        println("Type: " + record.getType());
+        println("Content: " + record.getContent());
+        println("Proxiable: " + record.isProxiable());
+        println("Proxied: " + record.isProxied());
+        println("TTL: " + record.getTtl() + " seconds");
+        println("Comment: " + record.getComment());
+        println("Created On: " + record.getCreated());
+        println("Modified On: " + record.getModified());
+        println("--------------------------------");
     }
 
     // Find base domain
@@ -40,8 +41,8 @@ void main() {
 
     if (recordExists) {
 
-        IO.println("\nRecord already exists.");
-        IO.println("Deleting record...");
+        println("\nRecord already exists.");
+        println("Deleting record...");
 
         // Find and delete the record
         var recordToDelete = records.stream()
@@ -53,13 +54,13 @@ void main() {
         var success = client.deleteRecord(recordToDelete);
 
         // Output result
-        if (success) IO.println("Deleted record 'hello-world." + baseDomain + "' of type TXT.");
-        else IO.println("Failed to delete record 'hello-world." + baseDomain + "'.");
+        if (success) println("Deleted record 'hello-world." + baseDomain + "' of type TXT.");
+        else println("Failed to delete record 'hello-world." + baseDomain + "'.");
 
     } else {
 
-        IO.println("\nRecord does not exist.");
-        IO.println("Creating record...");
+        println("\nRecord does not exist.");
+        println("Creating record...");
 
         // Create a new TXT record
         var record = DnsRecord.builder(TXT)
@@ -71,6 +72,6 @@ void main() {
         client.createRecord(record);
 
         // Output result
-        IO.println("Created record 'hello-world." + baseDomain + "' of type TXT.");
+        println("Created record 'hello-world." + baseDomain + "' of type TXT.");
     }
 }
