@@ -10,6 +10,19 @@
 
     <name>Cloudflare-API</name>
     <description>A simple Java library to interact with the Cloudflare API, focusing on DNS record management</description>
+    <licenses>
+        <license>
+            <name>BSD 3-Clause License</name>
+            <url>https://github.com/MCmoderSD/Cloudflare-API/blob/master/LICENSE</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <scm>
+        <url>https://github.com/MCmoderSD/Cloudflare-API</url>
+        <connection>scm:git:https://github.com/MCmoderSD/Cloudflare-API.git</connection>
+        <developerConnection>scm:git:https://github.com/MCmoderSD/Cloudflare-API.git</developerConnection>
+    </scm>
 
     <distributionManagement>
         <repository>
@@ -46,7 +59,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
-                <version>3.2.1</version> <!-- don't change this -->
+                <version>3.4.0</version>
                 <executions>
                     <execution>
                         <id>attach-sources</id>
